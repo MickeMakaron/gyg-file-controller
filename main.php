@@ -76,13 +76,25 @@ if(!is_readable($filePath))
 
 // Get extensions whitelist. Deny if file's extension is not whitelisted.
 $extensionsWhitelist = include("extensionsWhitelist.php");
-if(!in_array(pathinfo($filePath)['extension'], $extensionsWhitelist))
+$extension = pathinfo($filePath)['extension'];
+if(!in_array($extension, $extensionsWhitelist))
 	$send404();
 
 
 // All is well. Read file.
-$imgInfo = getimagesize($filePath);
-$mime = $imgInfo['mime'];
+$mime = null;
+switch($extension)
+{
+	case 'css':
+	case 'less':
+	case 'js':
+		$mime = "text/{$extension}";
+		break;
+	default:
+		$mime = mime_content_type($filePath);
+		break;
+}
+
 header('Content-type: ' . $mime);  
 readfile($filePath);
 exit();
